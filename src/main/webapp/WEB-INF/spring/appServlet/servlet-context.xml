@@ -24,5 +24,44 @@
 	<context:component-scan base-package="com.kh.spring" />
 	
 	
+	<!-- 
+		어떤 url로 요청시 해당 이 문서가 실행된다고 생각하면됨!!
+		
+		그때 HandlerMapping을 통해서 어떤 url로 요청시 어떤 Controller를 실행할껀지 
+		알아내고 해당 Controller가 실행
+		
+		1. 그때 마다 실행할 Controller 클래스들이 빈으로 등록되어있어야만함
+		2. 어떤 url로 요청시 어떤 controller를 실행시킬껀지 매핑 
+	-->
+	
+	<!-- 
+		1.
+		<beans:bean id="loginController" class="com.kh.spring.member.controller.LoginController" />
+		<beans:bean id="memberInsertController" class="com.kh.spring.member.controller.MemberInsertControlle" />
+	
+		2.
+		<beans:bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+			<beans:property name="mappings">
+				<beans:props>
+					<beans:prop key="login.me">loginController</beans:prop>
+					<beans:prop key="insert.me">memberInsertController</beans:prop>
+				</beans:props>
+			</beans:property>
+		</beans:bean>
+		
+	-->
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 </beans:beans>
