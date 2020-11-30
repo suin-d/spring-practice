@@ -18,14 +18,20 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public Member loginMember(Member m) {
 		
-		Member loginUser = mDao.loginMember(sqlSession, m);
 		
+		//Member loginUser = mDao.loginMember(sqlSession, m);
+		//return loginUser;
+		return mDao.loginMember(sqlSession, m);
+		// 우리가 생성한 객체가 아니라 Spring이 SqlSession 관련한 모든 생명주기를 관리하기 때문에 결과만 반환!
+	
 	}
 
 	@Override
 	public int insertMember(Member m) {
-		// TODO Auto-generated method stub
-		return 0;
+	
+		return mDao.insertMember(sqlSession, m);
+		// sqlSession과 insert할 정보 담긴 맴버 객체 리턴
+				
 	}
 
 	@Override

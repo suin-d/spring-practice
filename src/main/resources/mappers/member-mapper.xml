@@ -3,6 +3,104 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="memberMapper">
  
+ 	<!-- 
+		* resultMap은 마이바티스의 가장 강력하고 핵심적인 기능 중 하나
+		ResultSet으로부터 조회된 컬럼값 하나씩 뽑아서
+		내가 지정한 자바 객체에 각 필드에 주섬주섬 담는 JDBC코드를 대부분 줄여주는 역할을 담당
+		
+		type : ResultSet에 조회된 한 행의 값들을 어떤 VO 클래스 객체에 담을건지에 대한 타입(풀네임 또는 별칭)
+	-->
+	<resultMap id="memberResultSet" type="Member">
+	<!-- mybatis-config.xml에 별칭 등록 -->
+	
+		<!-- 
+			column : 조회된 결과중 어떤 컬럼의 값을 뽑을건지 (DB의 해당 컬럼명)
+			property : 그 뽑은 값을 해당 객체의 어떤 필드에 매핑시킬건지 (자바 객체의 필드명)
+		-->
+		<result column="user_id" property="userId" />
+		<result column="user_pwd" property="userPwd" />
+		<result column="user_name" property="userName" />
+		<result column="email" property="email" />
+		<result column="gender" property="gender" />
+		<result column="age" property="age" />	
+		<result column="phone" property="phone" />
+		<result column="address" property="address" />
+		<result column="enroll_date" property="enrollDate" />
+		<result column="modify_date" property="modifyDate" />
+		<result column="status" property="status" />
+	</resultMap>
  
  
+	<!-- 
+		실행하고자 하는 sql문 종류에 따라 태그 작성후 sql문 기술
+		DAO에서 각 SQL문을 찾아서 실행할 수 있도록 고유한 id 부여
+		
+		쿼리문 기본적으로 preaparedStatement 
+		?(홀더) 대신에 해당 sql문에 전달받은 객체의 값을 바로꺼내서 대체
+		전달값을 꺼낼때 #{필드명 또는 변수명 또는 키값}으로 꺼냄
+		
+		id : 외부(DAO)에서 참조하기 위한 해당 sql문의 고유 아이디
+		parameterType : 해당 sql문에 전달된 객체의 타입(풀네임) 또는 별칭
+	-->
+ 
+ <select id="loginMember" 
+			parameterType="Member"
+			resultMap="memberResultSet">
+	select 
+	          user_id 
+	        , user_pwd 
+	        , user_name 
+	        , email 
+	        , gender 
+	        , age 
+	        , phone 
+	        , address 
+	        , enroll_date 
+	        , modify_date 
+	        , status 
+	     from member 
+	    where status = 'Y'
+	      and user_id = #{userId}
+	   <!-- and user_pwd = #{userPwd}  -->  
+	</select>
+	
+	<!-- 
+		* select 태그 같은 경우
+		반드시 기술해야되는 속성으로 resultType또는 resultMap에 대해서 기술해야됨! (둘중 하나만)
+		
+		resultType/resultMap : 해당 select문을 실행한 결과를 반환할 타입
+								즉, 조회된 결과(ResultSet)를 자바의 어떤 타입에 매핑해서 반환할껀지 기술
+								
+							resultType : 주로 바로 매핑될만한 것들 (int, String, ...)
+							resultMap : 바로 매핑이 되지 않고 내가 지정한 객체에 직접 매핑을 시키고자 할 경우
+		
+	-->
+	
+	
+	<insert id="insertMember" parameterType="Member">
+		insert 
+		  into member
+			  (	  user_id 
+		        , user_pwd 
+		        , user_name 
+		        , email 
+		        , gender 
+		        , age 
+		        , phone 
+		        , address 
+			  )
+			  values
+			  (
+			  	  #{userId}
+			  	, #{userPwd}
+			  	, #{userName}
+			  	, #{email}
+			  	, #{gender}
+			  	, #{age}
+			  	, #{phone}
+			  	, #{address}
+			  )
+			  
+		  
+	</insert>
 </mapper>
