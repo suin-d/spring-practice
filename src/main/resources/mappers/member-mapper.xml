@@ -103,4 +103,26 @@
 			  
 		  
 	</insert>
+	
+	
+	<update id="updateMember" parameterType="Member">
+		update 
+		        member
+		    set   email = #{email}
+			  	, gender = #{gender}
+			  	, age = #{age}
+			  	, phone = #{phone}
+			  	, address = #{address}
+		        , modify_date = sysdate
+		  where user_id = #{userId}
+			
+	</update>
+	
+	<update id="deleteMember" parameterType="string">
+		update 
+		       member
+		   set status = 'N'
+		     , modify_date = sysdate
+		 where user_id = #{userId}      
+	</update>
 </mapper>

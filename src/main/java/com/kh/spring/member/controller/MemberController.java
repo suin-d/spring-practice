@@ -203,7 +203,7 @@ public class MemberController {
 	}
 
 	@RequestMapping("insert.me")
-	public String insertMember(Member m, Model model) {
+	public String insertMember(Member m, Model model, HttpSession session) {
 		// 담기는 원리 
 		// key&value 세트로, 어떤 필드에 담고 싶은지 필드명을 name속성으로 key값 지정하면 거기 담김 
 	
@@ -245,6 +245,7 @@ public class MemberController {
 		
 		if(result > 0) { // 회원가입 성공 => 메인페이지 url 재요청
 			
+			session.setAttribute("alertMsg", "회원가입 성공!");
 			return "redirect:/";
 		
 		}else { // 회원가입 실패 => 에러페이지 
@@ -253,6 +254,69 @@ public class MemberController {
 			return "common/errorPage";
 			
 		}
+	}
+	
+	
+	@RequestMapping("myPage.me")
+	public String myPage() {
+		// /WEB-INF/views/member/myPage.jsp
+		return  "member/myPage";
+	}
+	
+	@RequestMapping("update.me")
+	public String updateMember(Member m, Model model, HttpSession session) {
+		
+		int result = mService.updateMember(m);
+		
+		if(result>0) { // 성공
+			
+			// 세션에 담겨있던 loginUser의 Member객체를 갱신된 객체로 변경해야함!
+			session.setAttribute("loginUser", mService.loginMember(m));
+			session.setAttribute("alertMsg", "회원 정보 변경 성공!");
+			
+			// 마이페이지 다시 보고 싶으면 myPage.me 라는 url로 재요청 
+			return "redirect:myPage.me";
+			
+		}else { //실패
+			model.addAttribute("errorMsg", "회원 정보 수정 실패!");
+			return "common/errorPage";
+		}
+		
+	}
+	
+	@RequestMapping("delete.me")
+	public String deleteMember(String userPwd, HttpSession session, Model model) {
+		// userPwd: 비밀번호(평문)
+		
+		Member loginUser = (Member)session.getAttribute("loginUser"); // 로그인된 회원 객체 
+		String encPwd = loginUser.getUserPwd();
+		//encPwd : 비밀번호 (암호문)
+		
+		if(bcryptPasswordEncoder.matches(userPwd, encPwd)) { // 본인이 맞을 경우
+			
+			int result = mService.deleteMember(loginUser.getUserId());
+			// 이미 비밀번호를 가지고 일치하는지 확인한 이후이기 때문에, 아이디만을 넘겨서 변경하면 됨! 
+			
+			if(result > 0) { // 회원탈퇴 성공 
+				// 더이상 유효한 회원이 아니기 때문에 로그아웃 처리 = 세션에 담겨있떤 loginUser 삭제  
+				session.removeAttribute("loginUser");
+				
+				session.setAttribute("alertMsg", "성공적으로 회원탈퇴되었습니다.");
+				
+				// 메인페이지 url 재요청 
+				return "redirect:/";
+				
+			}else { // 탈퇴 실패
+				model.addAttribute("errorMsg", "회원 탈퇴 실패");
+				return "common/errorPage";
+		
+			}
+			
+		}else { // 비밀번호가 틀렸을 경우 
+			model.addAttribute("errorMsg", "비밀번호가 틀렸습니다.");
+			return "common/errorPage";
+		}
+		
 	}
 	
 }
