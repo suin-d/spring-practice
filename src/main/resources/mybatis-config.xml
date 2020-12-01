@@ -12,6 +12,8 @@
 <!-- 여러개의 별칭 등록 가능한 구문  -->
 <typeAliases>
 	<typeAlias type="com.kh.spring.member.model.vo.Member" alias="Member"/>
+	<typeAlias type="com.kh.spring.board.model.vo.Board" alias="Board"/>
+	
 </typeAliases>
 
 <!-- 원래는 DB접속과 관련된 내용을 작성했음 => 다른 곳에서 작성할 예정 -->
