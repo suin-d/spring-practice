@@ -36,8 +36,12 @@
             <h2>게시판</h2>
             <br>
             <!-- 로그인후 상태일 경우만 보여지는 글쓰기 버튼-->
-            <a class="btn btn-secondary" style="float:right" href="">글쓰기</a>
-            <br>
+            <c:if test="${ !empty loginUser }">
+            <a class="btn btn-secondary" style="float:right" href="enrollForm.bo">글쓰기</a>
+            <br><br>
+            </c:if>
+           
+            
             <table id="boardList" class="table table-hover" align="center">
                 <thead>
                   <tr>
@@ -53,7 +57,8 @@
                 	<c:forEach var="b" items="${ list }">
 	                	<!-- 게시글 번호 순차적으로 담기는 변수 b, items: 순차적으로 접근할  키값 제시 => ${ list }의 value값 ArrayList -->
 	                    <tr>
-	                        <td>${ b.boardNo }</td>
+	                    <!-- 클릭이벤트로 상세 페이지 연결 -->
+	                        <td class="bno">${ b.boardNo }</td>
 	                        <td>${ b.boardTitle }</td>
 	                        <td>${ b.boardWriter }</td>
 	                        <td>${ b.count }</td>
@@ -68,6 +73,18 @@
                     </c:forEach>
                 </tbody>
             </table>
+            
+            <script>
+            	$(function(){
+            		$("#boardList tbody tr").click(function(){
+            			location.href = "detail.bo?bno=" + $(this).children(".bno").text();
+            							// 쿼리스트링, 클릭이벤트가 발생한 $(this) 자손들 중  클래스가 bno인 자손의 text값 
+            		})
+            		
+            	})
+            
+            </script>
+            
             <br>
 
             <div id="pagingArea">

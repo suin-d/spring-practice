@@ -12,6 +12,7 @@
 		<result column="change_name" property="changeName"/>
 		<result column="count" property="count"/>
 		<result column="create_date" property="createDate"/>
+		<!-- 년월일 시분초로 출력 -->
 		<result column="status" property="status"/>
 	</resultMap>
 
@@ -28,7 +29,8 @@
 	        , board_title
 	        , board_writer
 	        , count
-	        , create_date
+	        , to_char(create_date, 'YY-MM-DD') "create_date" 
+	          <!-- to_char로 날짜 포맷 변환  후, 컬럼 별칭 부여 -->
 	        , origin_name
 	     from board
 	    where status='Y'
@@ -36,4 +38,55 @@
 	       by board_no desc
 	</select>
 	
+	<insert id="insertBoard" parameterType="Board">
+		insert
+		  into board
+		  (
+			  board_no
+	        , board_title
+	        , board_writer
+	        , board_content
+	        , origin_name
+	        , change_name
+		  )
+		  values
+		  (
+		  	  seq_bno.nextval
+		  	, #{boardTitle}
+		  	, #{boardWriter}
+		  	, #{boardContent}
+		  	, #{originName}
+		  	, #{changeName}
+		  )
+	</insert>
+
+	<update id="increaseCount" parameterType="_int">
+	<!-- bno => int형 값이 넘어옴, 자바에서의 int형을 mybatis에서는 _int -->
+	update 
+	  	   board
+	   set count = count+1
+	 where status = 'Y'
+	   and board_no = #{ bno } <!-- sql로부터 넘어온 건 변수명, 객체가 넘어오면 필드명 -->
+	
+	</update>	
+	
+	<select id="selectBoard" parameterType="_int"
+			resultMap="boardResultSet">
+		select
+		 	  board_no <!-- pk는 습관적으로 조회해오기 , 가져오지 않으면 못넘김! -->
+	        , board_title
+	        , board_writer
+	        , board_content
+	        , origin_name
+	        , change_name
+	       <!--, count 상세페이지에 X --> 
+	        , to_char(create_date, 'YYYY-MM-DD') "create_date" 	  
+	     from board
+	    where status='Y'
+	      and board_no = #{bno}
+
+	</select>
+	
 </mapper>
+
+

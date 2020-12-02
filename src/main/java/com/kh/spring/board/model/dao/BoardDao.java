@@ -35,4 +35,19 @@ public class BoardDao {
 		
 		return (ArrayList)sqlSession.selectList("boardMapper.selectBoardList", null, rowBounds); // null자리에 원래는 완성시킬 값, 하지만 없을 땐 null 
 	}
+	
+	
+	public int insertBoard(SqlSessionTemplate sqlSession, Board b) {
+		return sqlSession.insert("boardMapper.insertBoard", b);
+	}
+
+	
+	public int increaseCount(SqlSessionTemplate sqlSession, int bno) {
+		return sqlSession.update("boardMapper.increaseCount", bno);
+	}
+
+	public Board selectBoard(SqlSessionTemplate sqlSession, int bno) {
+		return sqlSession.selectOne("boardMapper.selectBoard", bno);
+	}
 }
+

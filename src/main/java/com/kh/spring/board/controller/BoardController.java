@@ -1,12 +1,19 @@
 package com.kh.spring.board.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.kh.spring.board.model.service.BoardService;
 import com.kh.spring.board.model.vo.Board;
@@ -43,6 +50,134 @@ public class BoardController {
 		
 		return "board/boardListView";
 		// 문자열 리턴 -> 반환형 바꾸기 void=>string
+	}
+	
+	@RequestMapping("enrollForm.bo")
+	public String enrollForm() {
+		
+		return "board/boardEnrollForm";
+	}
+	
+	@RequestMapping("insert.bo")
+	public String insertBoard(Board b, MultipartFile upfile, HttpSession session, Model model) {
+		// 제목, 작성자, 내용은 요청 시 전달되는 값 Board라는 객체에 세팅해주면 알아서 담김 => 물론 key값을 필드명으로 지어줘야함 
+		// but, 첨부파일은 별도로 반환해서 처리해야
+		
+		// System.out.println(b); // null값 담김 
+		// System.out.println(upfile.getOriginalFilename()); // 첨부파일 선택해도 null 
+		// 첨부파일 업로드 기능을 실행하기 위해서는 라이브러리 2개 추가, 빈으로 등록해야함 
+		
+		// 전달된 파일이 있을 경우 => 서버에 업로드 => 원본명, 저장경로 b에 담기 
+		if(!upfile.getOriginalFilename().equals("")) { // 빈 문자열이 아닐 경우 
+			
+			/* 
+			// 파일을 업로드 시킬 폴더의 물리적인 경로
+			String savePath = session.getServletContext().getRealPath("/resources/uploadFiles/");
+			// session객체로부터 getServletContext().getrealpath()라는 메소드 통해 결로 알아옴 
+					// "/" => webapp 
+			
+			// 어떤 이름으로 업로드 시킬건지 수정명 (changeName) 
+			String originName = upfile.getOriginalFilename(); // ocean.jpg // 확장자 추출하기 위해 셋팅 
+			
+			String currentTime = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date()); 
+			// simplaeDateFormat객체 생성 시 포맷 지정 
+			int ranNum = (int)(Math.random() * 90000 + 10000); 
+			// 10000에서부터 99999까지의 랜덤값 
+			String ext = originName.substring(originName.lastIndexOf("."));
+			// .의 위치를 찾아 substring 추출하면 .포함한 마지막값까지
+
+			String changeName = currentTime + ranNum + ext; // 2020120217323045236.jpg
+		
+		
+				try {
+					upfile.transferTo(new File(savePath + changeName));
+				} catch (IllegalStateException | IOException e) {
+							e.printStackTrace();
+				}
+				// 게시글 수정할 때도 똑같은 레파토리 
+				// 공통 코드가 기술될 것 같을 땐 공통 메소드로 만들어서 따로 빼놓음!  
+			*/
+			String changeName = saveFile(session, upfile);
+			// 이 메소드 호출 시 만들어진 changeName이 필요하다 => 반환된 changeName 담아주기  
+			
+			b.setOriginName(upfile.getOriginalFilename());
+			b.setChangeName("resources/uploadFiles/" + changeName); // "resources/uplodaFiles/2020120217323045236.jpg"
+		}
+		
+
+		int result = bService.insertBoard(b); // 케바케로 originName, changeName 담겨있고 없다면 null값 담겨 있을 것 
+	
+		if(result>0) {//성공했을 경우
+			session.setAttribute("alertMsg", "글 작성 성공했습니다!");
+			// return "board/boardListView"; XXX 다시 포워딩 하면 안되고 url 재요청해야 selectBoardList 이 과정을 다  거침!!
+			return "redirect:list.bo";
+			
+			
+		}else {// 실패했을 경우
+			model.addAttribute("errorMsg", "게시글 작성 실패!");
+			return "common/errorPage";
+		}
+	}
+	
+
+	
+	@RequestMapping("detail.bo")
+	public String selectBoard(int bno, Model model) {// bno이라는 키값으로 넘어온 게 바로 담김
+		// 먼저 이 게시글을 찾아 조회수 1 추가 
+		
+		int result = bService.increaseCount(bno);
+		
+		if(result>0) {// 유효한 게시글
+			
+			Board b = bService.selectBoard(bno);
+			// bno과 일치하는 게시글 Board객체에 담김 
+			
+			model.addAttribute("b", b); // b라는 키값으로 board객체 담기 
+			
+			return "board/boardDetailView"; 
+			
+		}else { // 유효하지 않은 게시글 => 셀렉할 필요 X 
+			
+			model.addAttribute("errorMsg", "존재하지 않는 게시글이거나 삭제된 게시글입니다.");
+			return "common/errorPage";
+		}
+		
+		
+	}
+	
+	
+	
+	// 첨부파일 업로드 시켜주는 메소드 
+	public String saveFile(HttpSession session, MultipartFile upfile) {
+		
+		// 파일을 업로드 시킬 폴더의 물리적인 경로
+		String savePath = session.getServletContext().getRealPath("/resources/uploadFiles/");
+		// session객체로부터 getServletContext().getrealpath()라는 메소드 통해 결로 알아옴 
+				// "/" => webapp 
+		
+		// 어떤 이름으로 업로드 시킬건지 수정명 (changeName) 
+		String originName = upfile.getOriginalFilename(); // ocean.jpg // 확장자 추출하기 위해 셋팅 
+		
+		String currentTime = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date()); 
+		// simplaeDateFormat객체 생성 시 포맷 지정 
+		int ranNum = (int)(Math.random() * 90000 + 10000); 
+		// 10000에서부터 99999까지의 랜덤값 
+		String ext = originName.substring(originName.lastIndexOf("."));
+		// .의 위치를 찾아 substring 추출하면 .포함한 마지막값까지
+
+		String changeName = currentTime + ranNum + ext; // 2020120217323045236.jpg
+	
+	
+			try {
+				upfile.transferTo(new File(savePath + changeName));
+			} catch (IllegalStateException | IOException e) {
+						e.printStackTrace();
+			}
+			// 게시글 수정할 때도 똑같은 레파토리 
+			// 공통 코드가 기술될 것 같을 땐 공통 메소드로 만들어서 따로 빼놓음 => BoardController 
+		
+			return changeName;
+			// 호출한 곳으로 changeName 리턴! (반환형 String)
 	}
 	
 }
