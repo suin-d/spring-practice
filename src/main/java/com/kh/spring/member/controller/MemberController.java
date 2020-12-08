@@ -8,6 +8,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.kh.spring.member.model.service.MemberService;
@@ -319,6 +320,15 @@ public class MemberController {
 		
 	}
 	
+	@ResponseBody
+	@RequestMapping("idCheck.me")
+	public String idCheck(String userId) { // 키값과 동일한 매개변수명 세팅 
+	
+	//	int count = mService.idCheck(userId); // 1 또는 0 
+	//	return String.valueOf(count); // return 하고자 하는 것은 int형? => 문자형으로 바꿔주기 => "1" 또는 "0"
+	
+	return String.valueOf(mService.idCheck(userId));
+	}
 }
 
 

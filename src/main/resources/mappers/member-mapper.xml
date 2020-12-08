@@ -125,4 +125,14 @@
 		     , modify_date = sysdate
 		 where user_id = #{userId}      
 	</update>
+	
+	
+	<select id="idCheck" parameterType="string"
+			resultType="_int">
+		select 
+			   count(*)
+	      from member
+	     where user_id = #{userId} 		   
+	</select>
+	
 </mapper>

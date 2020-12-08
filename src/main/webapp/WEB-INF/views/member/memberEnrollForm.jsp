@@ -17,10 +17,11 @@
             <h2>회원가입</h2>
             <br>
 
-            <form action="insert.me" method="post">
+            <form id="enrollForm" action="insert.me" method="post">
                 <div class="form-group">
                     <label for="userId">* ID :</label>
-                    <input type="text" class="form-control" id="userId" name="userId" placeholder="Please Enter ID" required><br>
+                    <input type="text" class="form-control" id="userId" name="userId" placeholder="Please Enter ID" required>
+                    <div id="check-result" style="Font-size:0.8em; display:none"></div><br>
                     
                     <label for="userPwd">* Password :</label>
                     <input type="password" class="form-control" id="userPwd" name="userPwd" placeholder="Please Enter Password" required><br>
@@ -52,13 +53,69 @@
                 </div>
                 <br>
                 <div class="btns" align="center">
-                    <button type="submit" class="btn btn-primary">회원가입</button>
+                    <button id="enroll-btn" type="submit" class="btn btn-primary" disabled>회원가입</button>
                     <button type="reset" class="btn btn-danger"> 초기화</button>
                 </div>
             </form>
         </div>
         <br><br>
     </div>
+
+	<script>
+		$(function(){
+			
+			var idInput = $("#enrollForm input[name=userId]")//input 요소 자체 받아줌 
+			
+			idInput.keyup(function(){
+				
+				//console.log("입력됨");
+				
+				// 우선 최소 5글자 이상으로 입력했을 때만 중복체크 하도록 
+				if(idInput.val().length >= 5){ // 중복체크 할만함 
+					
+					// console.log("중복체크할것!")
+					
+				$.ajax({
+					url:"idCheck.me",
+					data:{userId:idInput.val()},
+					type:"post",
+					success:function(count){
+						if(count == 1){
+							// 중복된 아이디 존재 => 사용불가
+							// => 메세지 빨간색 출력, 버튼 비활성화
+							$("#check-result").show();
+							$("#check-result").css("color", "red").text("중복된 아이디가 존재합니다. 다시 입력해주세요.");
+							$("#enroll-btn").attr("disabled", true);
+							
+						}else{
+							// 중복된 아이디 없음 => 사용가능
+							// => 메세지 초록색 출력, 버튼 활성화 
+							$("#check-result").show();
+							$("#check-result").css("color", "green").text("사용가능한 아이디입니다.");
+							$("#enroll-btn").removeAttr("disabled");
+							
+						}
+					},
+					error:function(){
+						console.log("아이디중복체크용 ajax 통신 실패");
+					}
+					
+				});
+					
+					
+				}else{ //중복체크할 필요도 없음! 애초에 유효한 아이디가 아님! 
+					
+					// console.log("중복체크안할것..")
+					// 어떠한 메세지도 보이지 않고, 버튼 비활성화 
+					$("#check-result").hide(); 
+					$("enroll-btn").attr("disabled", true);
+				}
+			}) // 키보드로부터 값이 띄워졌을 때, 눌렀다가 떼는 순간  
+			
+		})
+		
+	</script>
+
 
     <!-- 이쪽에 푸터바 포함할꺼임 -->
     <jsp:include page="../common/footer.jsp"/>
