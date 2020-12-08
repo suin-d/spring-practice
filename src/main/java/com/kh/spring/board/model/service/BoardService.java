@@ -23,7 +23,7 @@ public interface BoardService {
 	// 4. 게시판 수정용 서비스
 	int updateBoard(Board b);
 	
-	// 5. 게시판 상제용 서비스 
+	// 5. 게시판 삭제용 서비스 
 	int deleteBoard(int bno);
 	
 	

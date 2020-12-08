@@ -1,29 +1,29 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>    
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
 <style>
-        table *{margin:5px;}
-        table{width:100%;}
+	table *{margin:5px;}
+    table{width:100%;}
 </style>
 </head>
 <body>
-  <!-- 이쪽에 메뉴바 포함 할꺼임 -->
+	<!-- 이쪽에 메뉴바 포함 할꺼임 -->
     <jsp:include page="../common/menubar.jsp"/>
-
 
     <div class="content">
         <br><br>
         <div class="innerOuter">
             <h2>게시글 상세보기</h2>
             <br>
-        
+            
             <a class="btn btn-secondary" style="float:right" href="list.bo">목록으로</a>
             <br><br>
+            
             <table id="contentArea" align="center" class="table">
                 <tr>
                     <th width="100">제목</th>
@@ -36,20 +36,17 @@
                     <td>${ b.createDate }</td>
                 </tr>
                 <tr>
-                
-               
                     <th>첨부파일</th>
                     <td colspan="3">
-	                <c:choose>
-	                	<c:when test="${ empty b.originName }">
-	                		"첨부파일이 없습니다."
-	                	</c:when>
-	                	<c:otherwise>
-	                        <a href="${ b.changeName }" download="${ b.originName }">${ b.originName }</a>
-	                    </c:otherwise>	
-	                    </c:choose>
-	                    </td>
-	                
+                    	<c:choose>
+                    		<c:when test="${ empty b.originName }">
+	                    		첨부파일이 없습니다.
+	                    	</c:when>
+	                    	<c:otherwise>
+	                        	<a href="${ b.changeName }" download="${ b.originName }">${ b.originName }</a>
+	                        </c:otherwise>
+                        </c:choose>
+                    </td>
                 </tr>
                 <tr>
                     <th>내용</th>
@@ -61,13 +58,34 @@
             </table>
             <br>
 
-            <div align="center">
-                <!-- 수정하기, 삭제하기 버튼은 이글이 본인글일 경우만 보여져야됨 -->
-                <c:if test="${ loginUser.userId eq b.boardWriter }">
-                	<a class="btn btn-primary" href="">수정하기</a>
-                	<a class="btn btn-danger" href="">삭제하기</a>
-            		</div><br><br>
-				</c:if>
+			<c:if test="${ loginUser.userId eq b.boardWriter }">
+	            <div align="center">
+	                <!-- 수정하기, 삭제하기 버튼은 이글이 본인글일 경우만 보여져야됨 -->
+	                <a class="btn btn-primary" onclick="postFormSubmit(1);">수정하기</a>
+	                <a class="btn btn-danger" onclick="postFormSubmit(2);">삭제하기</a>
+	            </div><br><br>
+            </c:if>
+            
+            <form action="" method="post" id="postForm">
+            	<input type="hidden" name="bno" value="${ b.boardNo }">
+            	<input type="hidden" name="fileName" value="${b.changeName}">
+            </form>
+            
+            <script>
+            	function postFormSubmit(num){
+            		var url = "";
+            		if(num == 1){ // 수정하기 클릭
+            			url = "updateForm.bo";
+            		}else if(num == 2){ // 삭제하기 클릭
+            			url = "delete.bo";
+            		}
+            		
+            		$("#postForm").attr("action", url).submit();
+            	}
+            </script>
+
+
+
             <!-- 댓글 기능은 나중에 ajax 배우고 접목시킬예정! 우선은 화면구현만 해놓음 -->
             <table id="replyArea" class="table" align="center">
                 <thead>
@@ -105,6 +123,5 @@
 
     <!-- 이쪽에 푸터바 포함할꺼임 -->
     <jsp:include page="../common/footer.jsp"/>
-
 </body>
 </html>

@@ -146,6 +146,96 @@ public class BoardController {
 	}
 	
 	
+
+	@RequestMapping("delete.bo")
+	public String deleteBoard(int bno, String fileName, HttpSession session, Model model) {
+		
+		int result = bService.deleteBoard(bno);
+		
+		if(result > 0) { // 기존의 파일 찾아서 삭제 => 게시글 리스트 페이지 재요청
+			
+			if(!fileName.equals("")) { // 기존의 첨부파일이 있었을 경우
+				new File(session.getServletContext().getRealPath(fileName)).delete();
+			}
+			
+			session.setAttribute("alertMsg", "성공적으로 게시글이 삭제되었습니다.");
+			return "redirect:list.bo";
+			
+		}else {
+			
+			model.addAttribute("errorMsg", "게시글 삭제 실패");
+			return "common/errorPage";
+			
+		}
+		
+	}
+
+
+	@RequestMapping("updateForm.bo")
+	public String updateForm(int bno, Model model) {
+		
+		//Board b = bService.selectBoard(bno);
+		//model.addAttribute("b", b);
+		model.addAttribute("b", bService.selectBoard(bno));
+		return "board/boardUpdateForm";
+		
+	}
+	
+	
+	@RequestMapping("update.bo")
+	public String updateBoard(Board b, MultipartFile reupFile, HttpSession session, Model model) {
+		
+		if(!reupFile.getOriginalFilename().equals("")) { // 새로 전달된 첨부파일 있을 경우
+			
+			// 만약에 기존의 첨부파일이 있었을 경우 => 삭제
+			if(b.getOriginName() != null) {
+				new File(session.getServletContext().getRealPath(b.getChangeName())).delete();
+			}
+			
+			// 새로 전달된 첨부파일 => 업로드
+			String changeName = saveFile(session, reupFile);
+			b.setOriginName(reupFile.getOriginalFilename());
+			b.setChangeName("resources/uploadFiles/" + changeName);
+			
+		}
+		
+		/*
+		 * Board b 객체의 필드 
+		 * 
+		 * 1. 새로 첨부된 파일 X, 기존의 첨부파일 X
+		 *    --> originName:null, changeName:null
+		 * 
+		 * 2. 새로 첨부된 파일 X, 기존의 첨부파일 O
+		 *    --> originName:기존의 첨부파일 원본명, changeName:기존의 첨부파일 저장경로
+		 *    
+		 * 3. 새로 첨부된 파일 O, 기존의 첨부파일 X
+		 * 	  --> 새로운 첨부파일 업로드 후
+		 *    --> originName:새로운 첨부파일 원본명, changeName:새로운 첨부파일 저장경로
+		 * 
+		 * 4. 새로 첨부된 파일 O, 기존의 첨부파일 O
+		 *    --> 기존의 첨부파일 삭제 후
+		 *    --> 새로운 첨부파일 업로드 후
+		 *    --> originName:새로운 첨부파일 원본명, changeName:새로운 첨부파일 저장경로
+		 * 
+		 */
+		
+		int result = bService.updateBoard(b);
+		
+		if(result > 0) { // 게시글 수정 성공 => 상세보기 페이지 재요청(detail.bo)
+			
+			session.setAttribute("alertMsg", "성공적으로 게시글이 수정됐습니다");
+			return "redirect:detail.bo?bno=" + b.getBoardNo();
+			
+		}else { // 게시글 수정 실패 
+			model.addAttribute("errorMsg", "게시글 수정 실패");
+			return "common/errorPage";
+		}
+		
+		
+	}
+	
+	
+	
 	
 	// 첨부파일 업로드 시켜주는 메소드 
 	public String saveFile(HttpSession session, MultipartFile upfile) {

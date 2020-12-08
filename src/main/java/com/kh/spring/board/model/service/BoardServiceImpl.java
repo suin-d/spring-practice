@@ -49,12 +49,12 @@ public class BoardServiceImpl implements BoardService {
 
 	@Override
 	public int updateBoard(Board b) {
-		return 0;
+		return bDao.updateBoard(sqlSession, b);
 	}
 
 	@Override
 	public int deleteBoard(int bno) {
-		return 0;
+		return bDao.deleteBoard(sqlSession, bno);
 	}
 
 }

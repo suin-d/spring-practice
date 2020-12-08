@@ -87,6 +87,26 @@
 
 	</select>
 	
+	<update id="deleteBoard" parameterType="_int">
+		update
+		       board
+		   set status = 'N'
+		 where board_no = #{bno}
+	</update>
+	
+	<update id="updateBoard" parameterType="Board">
+		update
+		       board
+		   set board_title = #{boardTitle}
+		     , board_content = #{boardContent}
+		   	 , origin_name = #{originName}
+		   	 , change_name = #{changeName}
+		 where board_no = #{boardNo}
+	</update>
+
+
+	
+	
 </mapper>
 
 
