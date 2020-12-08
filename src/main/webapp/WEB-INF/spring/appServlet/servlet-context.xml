@@ -51,7 +51,16 @@
 		
 	-->
 	
-	
+	<interceptors>
+		<interceptor>
+			<mapping path="/myPage.me"/>
+			<mapping path="/list.bo"/> <!-- 리스트 페이지 회원만 -->
+			<mapping path="/detail.bo"/>
+			<mapping path="/updateForm.bo"/>
+			<mapping path="/delete.bo"/>
+			<beans:bean id="LoginInterceptor" class="com.kh.spring.common.interceptor.LoginInterceptor"/>
+		</interceptor>
+	</interceptors>
 	
 	
 	
