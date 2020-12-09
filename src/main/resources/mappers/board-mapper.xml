@@ -16,6 +16,14 @@
 		<result column="status" property="status"/>
 	</resultMap>
 
+	<resultMap id="replyResultSet" type="Reply">
+		<result column="reply_no" property="replyNo"/>
+		<result column="reply_content" property="replyContent"/>
+		<result column="ref_bno" property="refBno"/>
+		<result column="reply_writer" property="replyWriter"/>
+		<result column="create_date" property="createDate"/>
+	</resultMap>
+
 	<select id="selectListCount" resultType="_int">
 		select 
 			   count(*)
@@ -104,7 +112,51 @@
 		 where board_no = #{boardNo}
 	</update>
 
-
+	<select id="selectReplyList" 
+			parameterType="_int"
+	        resultMap="replyResultSet">
+		select
+		 	  reply_no <!-- pk는 습관적으로 조회해오기 , 가져오지 않으면 못넘김! -->
+	        , reply_content
+	        , reply_writer 
+	        , to_char(create_date, 'YYYY-MM-DD') "create_date"	  
+	     from reply
+	 <!-- join member on(reply_writer = user_id) -->
+	    where status='Y'
+	      and ref_bno = #{bno}
+	    order
+	       by reply_no desc   
+	</select>
+	
+	<!-- 해결한 오류
+	java.lang.IllegalArgumentException: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]
+	VO에 담는 private Date createDate; 변수를 	
+	private String createDate; String 형으로 변경  
+	YYYY-MM-DD 형식으로 표시하기위해 String으로 선언해서 표시
+	--> 
+	 
+	<!--  
+	 column ambiguously defined 
+	  컬럼명 중복! 테이블에 별칭 사용 
+	--> 
+	
+	<insert id="insertReply" parameterType="Reply">			  
+		insert
+		  into reply
+		  (
+		      reply_no
+		    , reply_content
+		    , ref_bno
+		    , reply_writer
+		   ) 
+		  values 
+		  (
+		     seq_rno.nextval
+		   , #{ replyContent }
+		   , #{ refBno } 
+		   , #{ replyWriter } 
+		   )
+	</insert>
 	
 	
 </mapper>

@@ -13,10 +13,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.gson.Gson;
 import com.kh.spring.board.model.service.BoardService;
 import com.kh.spring.board.model.vo.Board;
+import com.kh.spring.board.model.vo.Reply;
 import com.kh.spring.common.model.vo.PageInfo;
 import com.kh.spring.common.template.Pagination;
 
@@ -235,6 +238,32 @@ public class BoardController {
 	}
 	
 	
+	@ResponseBody
+	@RequestMapping(value="rlist.bo", produces="application/json; charset=utf-8")
+	public String selectReplyList(int bno) { // 넘어온 키값 받아주는 매개변수 bno  
+
+		ArrayList<Reply> list = bService.selectReplyList(bno);
+		// list => JSON => String 
+		return new Gson().toJson(list);
+		
+		
+	}
+	
+	
+	@ResponseBody
+	@RequestMapping("rinsert.bo")
+	public String insertReply(Reply r) {
+		
+		int result = bService.insertReply(r); 
+		
+		if(result > 0) {
+			return "success";
+		}else {
+			return "fail";
+		}
+
+		
+	}
 	
 	
 	// 첨부파일 업로드 시켜주는 메소드 

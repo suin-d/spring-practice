@@ -67,7 +67,7 @@
             </c:if>
             
             <form action="" method="post" id="postForm">
-            	<input type="hidden" name="bno" value="${ b.boardNo }">
+            	<input type="hidden" name="bno" id="bno" value="${ b.boardNo }">
             	<input type="hidden" name="fileName" value="${b.changeName}">
             </form>
             
@@ -93,33 +93,84 @@
                         <th colspan="2">
                             <textarea class="form-control" name="" id="content" cols="55" rows="2" style="resize:none; width:100%"></textarea>
                         </th>
-                        <th style="vertical-align: middle"><button class="btn btn-secondary">등록하기</button></th>
+                        <th style="vertical-align: middle"><button class="btn btn-secondary" onclick="addReply();">등록하기</button></th>
                     </tr>
                     <tr>
-                       <td colspan="3">댓글 (<span id="rcount">3</span>) </td> 
+                       <td colspan="3">댓글 (<span id="rcount"></span>) </td> 
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <th>user02</th>
-                        <td>댓글입니다.너무웃기다앙</td>
-                        <td>2020-04-10</td>
-                    </tr>
-                    <tr>
-                        <th>user01</th>
-                        <td>많이봐주세용</td>
-                        <td>2020-04-08</td>
-                    </tr>
-                    <tr>
-                        <th>admin</th>
-                        <td>댓글입니다ㅋㅋㅋ</td>
-                        <td>2020-04-02</td>
-                    </tr>
+	
                 </tbody>
             </table>
         </div>
         <br><br>
     </div>
+
+     <script>
+             $(function () {
+               // 모든 html요소 만들어지고 난 후 호출
+               selectReplyList();
+             })
+
+             	function addReply(){
+          // 넘겨야할 값: 작성된 댓글 내용, 게시글 번호, 로그인한 사용자의 아이디
+          if($("#content").val().trim().length > 0 ){
+          	 // 만약 댓글 입력을 하지않았다면? => 빈문자열 => null값 오류
+                 // 공백을 제거한 문자열의 길이가 0이상일 때 등록되도록!
+          	$.ajax({
+          		url:"rinsert.bo",
+          		data:{
+          				replyContent: $("#content").val(),
+          				refBno: ${ b.boardNo }, // 2
+          			//	replyWrtier: ${ loginUser.userId } // admin
+          				replyWriter: "${ loginUser.userId }" // "admin
+          			// 많이하는 실수, el로 가져오고자하는 값이 문자열이면 "" 묶어줘야!
+
+          		},
+          		success:function(result){ // 매개변수에 success or fail 담김
+          			if(result == "success"){
+          				// textarea 초기화
+          				$("#content").val("");
+
+          				// list 조회하는 ajax 재호출
+          				selectReplyList();
+          			}
+          		}, error:function(){
+          			console.log("댓글 작성용 ajax 통신 실패")
+          		}
+			})
+			
+		}
+	}
+
+               function selectReplyList() {
+                 // 이 게시글에 딸린 댓글 리스트 조회용 ajax
+                 $.ajax({
+                    url: "rlist.bo",
+                   //data:{bno:$("#bno").val()}, // data에 넘길 값 담아주기,  보고 있는 게시글 번호
+              	 	data:{bno:${b.boardNo}},
+                    success: function(list) {
+                     console.log(list);
+                     $("#rcount").text(list.length);
+
+                     var value="";
+                     for(var i in list){
+                   	  value += "<tr>" +
+                     	  		"<th>" +  list[i].replyWriter + "</th>" +
+                     			"<td>" + list[i].replyContent + "</td>" +
+                     			"<td>" + list[i].createDate + "</td>" +
+                     	"</tr>";
+                     }
+                     $("#replyArea tbody").html(value);
+                   }, error: function() {
+                     console.log("ajax통신실패");
+               	}
+         		})
+         		
+         	}
+      </script>
+
 
     <!-- 이쪽에 푸터바 포함할꺼임 -->
     <jsp:include page="../common/footer.jsp"/>
